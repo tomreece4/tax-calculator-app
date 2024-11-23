@@ -96,12 +96,13 @@
                 });
             </script>
         {% else %}
-            <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
-            <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
-            <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
-            <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
-            <a href="/">Calculate Again</a>
-
+            <div class="salary-card">
+                <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
+                <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
+                <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
+                <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
+                <a href="/">Calculate Again</a>
+            </div>
             <h2>Tax Breakdown Chart</h2>
             <canvas id="taxChart" width="400" height="400"></canvas>
             <script>

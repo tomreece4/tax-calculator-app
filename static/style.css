@@ -1,141 +1,200 @@
 /* General Reset */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+    font-family: 'Roboto', sans-serif; /* Clean and professional font */
+    background: linear-gradient(120deg, #eff5f9, #c3e0f7); /* Modern background gradient */
+    color: #2d2d2d;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 /* Container Styling */
 .container {
     text-align: center;
     background: #ffffff;
-    padding: 2% 4%;
-    border-radius: 0.8em;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Improved shadow for a modern look */
+    padding: 3% 5%;
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Clean shadow for depth */
     width: 85%;
-    max-width: 35rem; /* Max width for larger screens */
+    max-width: 40rem;
     box-sizing: border-box;
     margin-top: 1%;
+    border: 3px solid #007bff; /* Clear, prominent border */
+    animation: fadeIn 0.8s ease-out; /* Smooth entrance effect */
 }
 
 /* Heading */
 h1 {
     margin-bottom: 2rem;
-    font-size: 2.5rem; /* Larger, scalable font size */
-    color: #007bff; /* Accent color for the title */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    font-size: 3rem;
+    color: #007bff; /* Financial accent color */
+    font-weight: bold;
+    text-transform: uppercase; /* Authoritative feel */
+    letter-spacing: 0.05em; /* Improved readability */
+    text-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle depth */
 }
 
 /* Form Labels */
 form label {
     font-weight: bold;
     display: block;
-    margin-bottom: 0.5rem; /* Reduced spacing for compact design */
-    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: #2d2d2d; /* Strong contrast for readability */
 }
 
 /* Form Inputs */
 form input {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     padding: 1rem;
     width: 100%;
-    border: 0.1rem solid #ccc;
-    border-radius: 0.5rem;
-    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 0.6rem;
+    font-size: 1.1rem;
     box-sizing: border-box;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 form input:focus {
-    border-color: #007bff; /* Highlight input field on focus */
+    border-color: #007bff; /* Accent color on focus */
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle focus glow */
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); /* Glow for focus */
+    transform: scale(1.02); /* Slight zoom effect */
 }
 
 /* Options Section */
 .options {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     display: flex;
-    gap: 1rem; /* Space between buttons */
+    gap: 1rem;
     justify-content: center;
-    flex-wrap: wrap; /* Wrap buttons on smaller screens */
+    flex-wrap: wrap;
 }
 
 /* Buttons */
 button {
-    padding: 0.8rem 1.5rem; /* Dynamic button size */
+    padding: 0.9rem 2rem;
     background-color: #007bff;
     color: #ffffff;
     border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
+    border-radius: 0.6rem;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Elevation for visibility */
+    text-transform: uppercase;
+    letter-spacing: 0.03em; /* Professional text spacing */
 }
 
 button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px); /* Slight lift effect on hover */
+    background-color: #0056b3; /* Darker shade for hover */
+    transform: translateY(-3px); /* Lift effect */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
-    transform: translateY(0); /* Reset lift effect on click */
+    transform: translateY(0); /* Reset hover lift */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Salary Card Styling */
+.salary-card {
+    background: #f9f9fc;
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Clean card shadow */
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.salary-card:hover {
+    transform: translateY(-5px); /* Lift effect for interactivity */
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.salary-card h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #007bff; /* Consistent with heading color */
+    font-weight: bold;
+}
+
+.salary-card p {
+    margin: 0.8rem 0; /* Spaced for readability */
+    font-size: 1.1rem;
+    color: #2d2d2d; /* Neutral text color */
+}
+
+.salary-card strong {
+    color: #333; /* Bold emphasis for labels */
+    font-weight: bold;
+}
+
+/* Statistic Highlights */
+.salary-card .highlight {
+    color: #28a745; /* Positive stats in green */
+    font-weight: bold;
+}
+
+/* Additional Info or Tips Styling */
+.tips {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #e9f7ff; /* Light blue for informational tone */
+    border-left: 4px solid #007bff; /* Accent border */
+    border-radius: 0.5rem;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #2d2d2d;
 }
 
 /* Responsiveness for Smaller Screens */
 @media (max-width: 40em) {
     .container {
-        padding: 2 4%; /* Adjust padding */
+        padding: 2.5%;
         width: 95%;
         max-width: 100%;
     }
 
     h1 {
-        font-size: 2rem; /* Reduce heading size */
+        font-size: 2.5rem;
     }
 
     form label {
-        font-size: 1rem; /* Adjust label font size */
+        font-size: 1.2rem;
     }
 
     button {
-        font-size: 0.9rem; /* Scale down button text */
-        padding: 0.7rem 1.2rem;
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+
+    .salary-card h2 {
+        font-size: 1.8rem;
+    }
+
+    .tips {
+        font-size: 0.9rem;
+        padding: 0.8rem;
     }
 }
 
-/* Salary Card Styling */
-.salary-card {
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 0.8rem;
-    padding-left: 2rem;
-    padding-bottom: 2rem;
-    margin-bottom: 2rem; /* Space between cards */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    text-align: left; /* Align text to the left for better readability */
-}
-
-.salary-card h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    color: #007bff; /* Match the heading color for consistency */
-}
-
-.salary-card p {
-    margin: 0.5rem 0; /* Spacing between each item */
-    font-size: 1rem;
-}
-
-.salary-card strong {
-    color: #333; /* Make labels bold but darker */
+/* Animation for a Subtle Fade-In Effect */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
