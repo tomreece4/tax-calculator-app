@@ -9,7 +9,66 @@
 </head>
 <body>
     <div class="container">
-        <h1>Tax Breakdown</h1>
+        <h1>Tax Results</h1>
+
+        {% if comparison %}
+            <!-- Comparison View -->
+            <h2>Salary 1 Breakdown</h2>
+            <p><strong>Gross Salary:</strong> £{{ result1['Gross Salary'] }}</p>
+            <p><strong>Income Tax:</strong> £{{ result1['Income Tax'] }}</p>
+            <p><strong>National Insurance:</strong> £{{ result1['National Insurance'] }}</p>
+            <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
+
+            <h2>Salary 2 Breakdown</h2>
+            <p><strong>Gross Salary:</strong> £{{ result2['Gross Salary'] }}</p>
+            <p><strong>Income Tax:</strong> £{{ result2['Income Tax'] }}</p>
+            <p><strong>National Insurance:</strong> £{{ result2['National Insurance'] }}</p>
+            <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
+
+            <h2>Comparison Chart</h2>
+            <canvas id="comparisonChart" width="400" height="400"></canvas>
+            <script>
+                const ctx = document.getElementById('comparisonChart').getContext('2d');
+                const comparisonData = {
+                    labels: ['Gross Salary', 'Income Tax', 'National Insurance', 'Take-Home Pay'],
+                    datasets: [
+                        {
+                            label: 'Salary 1 (£{{ result1["Gross Salary"] }})',
+                            data: [
+                                {{ result1['Gross Salary'] }},
+                                {{ result1['Income Tax'] }},
+                                {{ result1['National Insurance'] }},
+                                {{ result1['Take-Home Pay'] }}
+                            ],
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                        },
+                        {
+                            label: 'Salary 2 (£{{ result2["Gross Salary"] }})',
+                            data: [
+                                {{ result2['Gross Salary'] }},
+                                {{ result2['Income Tax'] }},
+                                {{ result2['National Insurance'] }},
+                                {{ result2['Take-Home Pay'] }}
+                            ],
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                        }
+                    ]
+                };
+
+                const comparisonChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: comparisonData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            </script>
+        {% else %}
         <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
         <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
         <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
@@ -53,5 +112,9 @@
             }
         });
     </script>
+        {% endif %}
+
+        <a href="/">Back to Home</a>
+    </div>
 </body>
 </html>

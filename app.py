@@ -65,13 +65,20 @@ def british_tax_rate(gross_salary):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Get gross salary from the form
-        gross_salary = float(request.form.get('gross_salary', 0))
-        # Calculate the tax breakdown
-        result = british_tax_rate(gross_salary)
-        return render_template('result.html', result=result)
+        # Check which form was submitted
+        if 'gross_salary_1' in request.form and 'gross_salary_2' in request.form:
+            # Comparison form
+            salary1 = float(request.form.get('gross_salary_1', 0))
+            salary2 = float(request.form.get('gross_salary_2', 0))
+            result1 = british_tax_rate(salary1)
+            result2 = british_tax_rate(salary2)
+            return render_template('result.html', result1=result1, result2=result2, comparison=True)
+        elif 'gross_salary' in request.form:
+            # Single salary form
+            salary = float(request.form.get('gross_salary', 0))
+            result = british_tax_rate(salary)
+            return render_template('result.html', result=result, comparison=False)
     return render_template('index.html')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
