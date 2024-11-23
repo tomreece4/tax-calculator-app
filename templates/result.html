@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UK Tax Results</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -14,6 +15,43 @@
         <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
         <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
         <a href="/">Calculate Again</a>
+
+        <h2>Tax Breakdown Chart</h2>
+        <canvas id="taxChart" width="400" height="400"></canvas>
     </div>
+
+    <script>
+        const ctx = document.getElementById('taxChart').getContext('2d');
+        const taxData = {
+            labels: ['Take-Home Pay', 'Income Tax', 'National Insurance'],
+            datasets: [{
+                label: 'Tax Breakdown',
+                data: [
+                    {{ result['Take-Home Pay'] }},
+                    {{ result['Income Tax'] }},
+                    {{ result['National Insurance'] }}
+                ],
+                backgroundColor: [
+                    '#4caf50',  // Green for Take-Home Pay
+                    '#f44336',  // Red for Income Tax
+                    '#2196f3'   // Blue for National Insurance
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const taxChart = new Chart(ctx, {
+            type: 'pie',
+            data: taxData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
