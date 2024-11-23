@@ -13,17 +13,21 @@
 
         {% if comparison %}
             <!-- Comparison View -->
-            <h2>Salary 1 Breakdown</h2>
-            <p><strong>Gross Salary:</strong> £{{ result1['Gross Salary'] }}</p>
-            <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
-            <p><strong>Income Tax:</strong> £{{ result1['Income Tax'] }}</p>
-            <p><strong>National Insurance:</strong> £{{ result1['National Insurance'] }}</p>
+            <div class="salary-card">
+                <h2>Salary 1 Breakdown</h2>
+                <p><strong>Gross Salary:</strong> £{{ result1['Gross Salary'] }}</p>
+                <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
+                <p><strong>Income Tax:</strong> £{{ result1['Income Tax'] }}</p>
+                <p><strong>National Insurance:</strong> £{{ result1['National Insurance'] }}</p>
+            </div>
 
-            <h2>Salary 2 Breakdown</h2>
-            <p><strong>Gross Salary:</strong> £{{ result2['Gross Salary'] }}</p>
-            <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
-            <p><strong>Income Tax:</strong> £{{ result2['Income Tax'] }}</p>
-            <p><strong>National Insurance:</strong> £{{ result2['National Insurance'] }}</p>
+            <div class="salary-card">
+                <h2>Salary 2 Breakdown</h2>
+                <p><strong>Gross Salary:</strong> £{{ result2['Gross Salary'] }}</p>
+                <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
+                <p><strong>Income Tax:</strong> £{{ result2['Income Tax'] }}</p>
+                <p><strong>National Insurance:</strong> £{{ result2['National Insurance'] }}</p>
+            </div>
 
             <h2>Comparison Chart</h2>
             <canvas id="comparisonChart"></canvas>
@@ -92,49 +96,47 @@
                 });
             </script>
         {% else %}
-        <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
-        <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
-        <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
-        <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
-        <a href="/">Calculate Again</a>
+            <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
+            <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
+            <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
+            <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
+            <a href="/">Calculate Again</a>
 
-        <h2>Tax Breakdown Chart</h2>
-        <canvas id="taxChart" width="400" height="400"></canvas>
-    </div>
+            <h2>Tax Breakdown Chart</h2>
+            <canvas id="taxChart" width="400" height="400"></canvas>
+            <script>
+                const ctx = document.getElementById('taxChart').getContext('2d');
+                const taxData = {
+                    labels: ['Take-Home Pay', 'Income Tax', 'National Insurance'],
+                    datasets: [{
+                        label: 'Tax Breakdown',
+                        data: [
+                            {{ result['Take-Home Pay'] }},
+                            {{ result['Income Tax'] }},
+                            {{ result['National Insurance'] }}
+                        ],
+                        backgroundColor: [
+                            '#4caf50',  // Green for Take-Home Pay
+                            '#f44336',  // Red for Income Tax
+                            '#2196f3'   // Blue for National Insurance
+                        ],
+                        borderWidth: 1
+                    }]
+                };
 
-    <script>
-        const ctx = document.getElementById('taxChart').getContext('2d');
-        const taxData = {
-            labels: ['Take-Home Pay', 'Income Tax', 'National Insurance'],
-            datasets: [{
-                label: 'Tax Breakdown',
-                data: [
-                    {{ result['Take-Home Pay'] }},
-                    {{ result['Income Tax'] }},
-                    {{ result['National Insurance'] }}
-                ],
-                backgroundColor: [
-                    '#4caf50',  // Green for Take-Home Pay
-                    '#f44336',  // Red for Income Tax
-                    '#2196f3'   // Blue for National Insurance
-                ],
-                borderWidth: 1
-            }]
-        };
-
-        const taxChart = new Chart(ctx, {
-            type: 'pie',
-            data: taxData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
+                const taxChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: taxData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        }
                     }
-                }
-            }
-        });
-    </script>
+                });
+            </script>
         {% endif %}
 
         <a href="/">Back to Home</a>

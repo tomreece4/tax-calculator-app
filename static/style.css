@@ -16,13 +16,13 @@ body {
 .container {
     text-align: center;
     background: #ffffff;
-    padding: 4%;
+    padding: 2% 4%;
     border-radius: 0.8em;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Improved shadow for a modern look */
     width: 85%;
     max-width: 35rem; /* Max width for larger screens */
     box-sizing: border-box;
-    margin-top: 1%
+    margin-top: 1%;
 }
 
 /* Heading */
@@ -94,7 +94,7 @@ button:active {
 /* Responsiveness for Smaller Screens */
 @media (max-width: 40em) {
     .container {
-        padding: 5%; /* Adjust padding */
+        padding: 2 4%; /* Adjust padding */
         width: 95%;
         max-width: 100%;
     }
@@ -111,4 +111,31 @@ button:active {
         font-size: 0.9rem; /* Scale down button text */
         padding: 0.7rem 1.2rem;
     }
+}
+
+/* Salary Card Styling */
+.salary-card {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 0.8rem;
+    padding-left: 2rem;
+    padding-bottom: 2rem;
+    margin-bottom: 2rem; /* Space between cards */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    text-align: left; /* Align text to the left for better readability */
+}
+
+.salary-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #007bff; /* Match the heading color for consistency */
+}
+
+.salary-card p {
+    margin: 0.5rem 0; /* Spacing between each item */
+    font-size: 1rem;
+}
+
+.salary-card strong {
+    color: #333; /* Make labels bold but darker */
 }
