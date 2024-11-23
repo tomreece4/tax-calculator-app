@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Tax Results</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tax Breakdown</h1>
+        <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
+        <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
+        <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
+        <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
+        <a href="/">Calculate Again</a>
+    </div>
+</body>
+</html>

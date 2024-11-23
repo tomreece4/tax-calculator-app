@@ -1,3 +1,8 @@
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+
 def british_tax_rate(gross_salary):
     """
     Calculate take-home pay in the UK for the 2023/2024 tax year.
@@ -57,3 +62,16 @@ def british_tax_rate(gross_salary):
     }
 
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        # Get gross salary from the form
+        gross_salary = float(request.form.get('gross_salary', 0))
+        # Calculate the tax breakdown
+        result = british_tax_rate(gross_salary)
+        return render_template('result.html', result=result)
+    return render_template('index.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
