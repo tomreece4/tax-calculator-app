@@ -1,3 +1,4 @@
+/* General Reset */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
@@ -7,45 +8,107 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    line-height: 1.5;
 }
 
+/* Container Styling */
 .container {
     text-align: center;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    padding: 4%;
+    border-radius: 0.8em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Improved shadow for a modern look */
+    width: 85%;
+    max-width: 35rem; /* Max width for larger screens */
+    box-sizing: border-box;
+    margin-top: 1%
 }
 
+/* Heading */
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
+    font-size: 2.5rem; /* Larger, scalable font size */
+    color: #007bff; /* Accent color for the title */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
+/* Form Labels */
 form label {
     font-weight: bold;
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem; /* Reduced spacing for compact design */
+    font-size: 1.2rem;
 }
 
+/* Form Inputs */
 form input {
-    margin-bottom: 20px;
-    padding: 8px;
+    margin-bottom: 1rem;
+    padding: 1rem;
     width: 100%;
-    max-width: 300px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 0.1rem solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
 }
 
+form input:focus {
+    border-color: #007bff; /* Highlight input field on focus */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle focus glow */
+}
+
+/* Options Section */
+.options {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem; /* Space between buttons */
+    justify-content: center;
+    flex-wrap: wrap; /* Wrap buttons on smaller screens */
+}
+
+/* Buttons */
 button {
-    padding: 10px 20px;
-    border: none;
+    padding: 0.8rem 1.5rem; /* Dynamic button size */
     background-color: #007bff;
-    color: #fff;
-    border-radius: 4px;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
 }
 
 button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+button:active {
+    transform: translateY(0); /* Reset lift effect on click */
+}
+
+/* Responsiveness for Smaller Screens */
+@media (max-width: 40em) {
+    .container {
+        padding: 5%; /* Adjust padding */
+        width: 95%;
+        max-width: 100%;
+    }
+
+    h1 {
+        font-size: 2rem; /* Reduce heading size */
+    }
+
+    form label {
+        font-size: 1rem; /* Adjust label font size */
+    }
+
+    button {
+        font-size: 0.9rem; /* Scale down button text */
+        padding: 0.7rem 1.2rem;
+    }
 }

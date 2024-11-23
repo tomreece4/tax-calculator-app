@@ -15,42 +15,46 @@
             <!-- Comparison View -->
             <h2>Salary 1 Breakdown</h2>
             <p><strong>Gross Salary:</strong> £{{ result1['Gross Salary'] }}</p>
+            <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
             <p><strong>Income Tax:</strong> £{{ result1['Income Tax'] }}</p>
             <p><strong>National Insurance:</strong> £{{ result1['National Insurance'] }}</p>
-            <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
 
             <h2>Salary 2 Breakdown</h2>
             <p><strong>Gross Salary:</strong> £{{ result2['Gross Salary'] }}</p>
+            <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
             <p><strong>Income Tax:</strong> £{{ result2['Income Tax'] }}</p>
             <p><strong>National Insurance:</strong> £{{ result2['National Insurance'] }}</p>
-            <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
 
             <h2>Comparison Chart</h2>
-            <canvas id="comparisonChart" width="400" height="400"></canvas>
+            <canvas id="comparisonChart"></canvas>
             <script>
                 const ctx = document.getElementById('comparisonChart').getContext('2d');
                 const comparisonData = {
-                    labels: ['Gross Salary', 'Income Tax', 'National Insurance', 'Take-Home Pay'],
+                    labels: ['Gross Salary', 'Take-Home Pay', 'Income Tax', 'National Insurance'],
                     datasets: [
                         {
                             label: 'Salary 1 (£{{ result1["Gross Salary"] }})',
                             data: [
                                 {{ result1['Gross Salary'] }},
+                                {{ result1['Take-Home Pay'] }},
                                 {{ result1['Income Tax'] }},
-                                {{ result1['National Insurance'] }},
-                                {{ result1['Take-Home Pay'] }}
+                                {{ result1['National Insurance'] }}
                             ],
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)', /* Blue */
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
                         },
                         {
                             label: 'Salary 2 (£{{ result2["Gross Salary"] }})',
                             data: [
                                 {{ result2['Gross Salary'] }},
+                                {{ result2['Take-Home Pay'] }},
                                 {{ result2['Income Tax'] }},
-                                {{ result2['National Insurance'] }},
-                                {{ result2['Take-Home Pay'] }}
+                                {{ result2['National Insurance'] }}
                             ],
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)', /* Red */
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
                         }
                     ]
                 };
@@ -62,7 +66,26 @@
                         responsive: true,
                         plugins: {
                             legend: {
-                                position: 'top',
+                                position: 'top'
+                            },
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Categories'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Amount (£)'
+                                }
                             }
                         }
                     }
@@ -70,9 +93,9 @@
             </script>
         {% else %}
         <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
+        <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
         <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
         <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
-        <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
         <a href="/">Calculate Again</a>
 
         <h2>Tax Breakdown Chart</h2>
