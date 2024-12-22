@@ -3,15 +3,16 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 
-def british_tax_rate(gross_salary):
+def british_tax_rate(gross_salary, student_loan_plan=None):
     """
-    Calculate take-home pay in the UK for the 2023/2024 tax year.
+    Calculate take-home pay in the UK for the 2023/2024 tax year, with optional student loan repayment.
 
     Args:
         gross_salary (float): Annual gross salary in GBP.
+        student_loan_plan (str): Optional; Student loan repayment plan ('Plan 1', 'Plan 2', 'Plan 4', 'PGL').
 
     Returns:
-        dict: A dictionary with a breakdown of tax, NIC, and take-home pay.
+        dict: A dictionary with a breakdown of tax, NIC, student loan, and take-home pay.
     """
     # Define tax brackets and rates
     tax_brackets = [
@@ -27,6 +28,14 @@ def british_tax_rate(gross_salary):
         (12570, 50270, 0.08),  # Primary threshold
         (50271, float('inf'), 0.02),  # Upper earnings limit
     ]
+
+    # Student loan repayment thresholds and rates
+    student_loan_thresholds = {
+        "Plan 1": (22015, 0.09),
+        "Plan 2": (27295, 0.09),
+        "Plan 4": (27660, 0.09),
+        "PGL": (21000, 0.06),
+    }
 
     # Adjust personal allowance for incomes over £100,000
     personal_allowance = 12570
@@ -51,13 +60,21 @@ def british_tax_rate(gross_salary):
             ni_income = min(gross_salary, upper) - lower
             ni += ni_income * rate
 
+    # Calculate student loan repayment
+    student_loan_repayment = 0.0
+    if student_loan_plan in student_loan_thresholds:
+        threshold, rate = student_loan_thresholds[student_loan_plan]
+        if gross_salary > threshold:
+            student_loan_repayment = (gross_salary - threshold) * rate
+
     # Calculate take-home pay
-    take_home = gross_salary - tax - ni
+    take_home = gross_salary - tax - ni - student_loan_repayment
 
     return {
         "Gross Salary": gross_salary,
         "Income Tax": round(tax, 2),
         "National Insurance": round(ni, 2),
+        "Student Loan Repayment": round(student_loan_repayment, 2),
         "Take-Home Pay": round(take_home, 2),
     }
 
@@ -74,11 +91,13 @@ def index():
             result2 = british_tax_rate(salary2)
             return render_template('result.html', result1=result1, result2=result2, comparison=True)
         elif 'gross_salary' in request.form:
-            # Single salary form
             salary = float(request.form.get('gross_salary', 0))
-            result = british_tax_rate(salary)
+            student_loan_plan = request.form.get('student_loan_plan', None)
+            result = british_tax_rate(salary, student_loan_plan)
             return render_template('result.html', result=result, comparison=False)
+
     return render_template('index.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

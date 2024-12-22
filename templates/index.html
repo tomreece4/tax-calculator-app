@@ -28,12 +28,21 @@
             <button onclick="toggleForm('compare')">Compare Two Salaries</button>
         </div>
 
-        <!-- Single Salary Form -->
-        <form id="single-salary-form" method="post" style="display: none;">
-            <label for="gross_salary">Enter Gross Salary (GBP):</label>
-            <input type="number" id="gross_salary" name="gross_salary" step="0.01" required>
-            <button type="submit">Calculate</button>
-        </form>
+<form method="post">
+    <label for="gross_salary">Enter Your Gross Annual Salary (£):</label>
+    <input type="number" id="gross_salary" name="gross_salary" required>
+
+    <label for="student_loan_plan">Select Your Student Loan Plan:</label>
+    <select id="student_loan_plan" name="student_loan_plan">
+        <option value="" selected>No Student Loan</option>
+        <option value="Plan 1">Plan 1</option>
+        <option value="Plan 2">Plan 2</option>
+        <option value="Plan 4">Plan 4</option>
+        <option value="PGL">Postgraduate Loan</option>
+    </select>
+
+    <button type="submit">Calculate</button>
+</form>
 
         <!-- Comparison Form -->
         <form id="comparison-form" method="post" style="display: none;">

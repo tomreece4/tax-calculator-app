@@ -101,6 +101,9 @@
                 <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
                 <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
                 <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
+                {% if result['Student Loan Repayment'] > 0 %}
+                    <p><strong>Student Loan Repayment:</strong> £{{ result['Student Loan Repayment'] }}</p>
+                {% endif %}
                 <a href="/">Calculate Again</a>
             </div>
             <h2>Tax Breakdown Chart</h2>
@@ -108,18 +111,20 @@
             <script>
                 const ctx = document.getElementById('taxChart').getContext('2d');
                 const taxData = {
-                    labels: ['Take-Home Pay', 'Income Tax', 'National Insurance'],
+                    labels: ['Take-Home Pay', 'Income Tax', 'National Insurance', 'Student Loan Repayment'],
                     datasets: [{
                         label: 'Tax Breakdown',
                         data: [
                             {{ result['Take-Home Pay'] }},
                             {{ result['Income Tax'] }},
-                            {{ result['National Insurance'] }}
+                            {{ result['National Insurance'] }},
+                            {{ result['Student Loan Repayment'] }}
                         ],
                         backgroundColor: [
                             '#4caf50',  // Green for Take-Home Pay
                             '#f44336',  // Red for Income Tax
-                            '#2196f3'   // Blue for National Insurance
+                            '#2196f3',  // Blue for National Insurance
+                            '#ff9800'   // Orange for Student Loan Repayment
                         ],
                         borderWidth: 1
                     }]
