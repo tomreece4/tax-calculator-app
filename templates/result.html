@@ -6,6 +6,7 @@
     <title>UK Tax Results</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -32,7 +33,7 @@
             <h2>Comparison Chart</h2>
             <canvas id="comparisonChart"></canvas>
             <script>
-                const ctx = document.getElementById('comparisonChart').getContext('2d');
+                const ctxComparison = document.getElementById('comparisonChart').getContext('2d');
                 const comparisonData = {
                     labels: ['Gross Salary', 'Take-Home Pay', 'Income Tax', 'National Insurance'],
                     datasets: [
@@ -63,89 +64,111 @@
                     ]
                 };
 
-                const comparisonChart = new Chart(ctx, {
+                new Chart(ctxComparison, {
                     type: 'bar',
                     data: comparisonData,
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: {
-                                position: 'top'
-                            },
-                            tooltip: {
-                                enabled: true
-                            }
+                            legend: { position: 'top' },
+                            tooltip: { enabled: true }
                         },
                         scales: {
-                            x: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Categories'
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Amount (£)'
-                                }
-                            }
+                            x: { title: { display: true, text: 'Categories' } },
+                            y: { title: { display: true, text: 'Amount (£)' } }
                         }
                     }
                 });
             </script>
         {% else %}
             <div class="salary-card">
-                <p><strong>Gross Salary:</strong> £{{ result['Gross Salary'] }}</p>
-                <p><strong>Take-Home Pay:</strong> £{{ result['Take-Home Pay'] }}</p>
-                <p><strong>Income Tax:</strong> £{{ result['Income Tax'] }}</p>
-                <p><strong>National Insurance:</strong> £{{ result['National Insurance'] }}</p>
+                <p><strong>Gross Salary:</strong> £<span id="grossSalary">{{ result['Gross Salary'] }}</span></p>
+                <p><strong>Take-Home Pay:</strong> £<span id="takeHomePay">{{ result['Take-Home Pay'] }}</span></p>
+                <p><strong>Income Tax:</strong> £<span id="incomeTax">{{ result['Income Tax'] }}</span></p>
+                <p><strong>National Insurance:</strong> £<span id="nationalInsurance">{{ result['National Insurance'] }}</span></p>
                 {% if result['Student Loan Repayment'] > 0 %}
-                    <p><strong>Student Loan Repayment:</strong> £{{ result['Student Loan Repayment'] }}</p>
+                    <p><strong>Student Loan Repayment:</strong> £<span id="studentLoan">{{ result['Student Loan Repayment'] }}</span></p>
                 {% endif %}
                 <a href="/">Calculate Again</a>
             </div>
+
+            <!-- Bonus Slider -->
+            <h2>Adjust Your Bonus</h2>
+            <label for="bonus">Bonus Amount (£):</label>
+            <input type="range" id="bonus" min="0" max="20000" step="1000" value="0" oninput="updateResults(this.value)">
+            <span id="bonusValue">0</span>
+
+            <!-- Chart -->
             <h2>Tax Breakdown Chart</h2>
             <canvas id="taxChart" width="400" height="400"></canvas>
+
+            <!-- Download Button -->
+            <button onclick="downloadPDF()">Download PDF</button>
+
             <script>
+                // Chart
                 const ctx = document.getElementById('taxChart').getContext('2d');
-                const taxData = {
-                    labels: ['Take-Home Pay', 'Income Tax', 'National Insurance', 'Student Loan Repayment'],
-                    datasets: [{
-                        label: 'Tax Breakdown',
-                        data: [
-                            {{ result['Take-Home Pay'] }},
-                            {{ result['Income Tax'] }},
-                            {{ result['National Insurance'] }},
-                            {{ result['Student Loan Repayment'] }}
-                        ],
-                        backgroundColor: [
-                            '#4caf50',  // Green for Take-Home Pay
-                            '#f44336',  // Red for Income Tax
-                            '#2196f3',  // Blue for National Insurance
-                            '#ff9800'   // Orange for Student Loan Repayment
-                        ],
-                        borderWidth: 1
-                    }]
+                let chart = null;
+
+                const renderChart = (data) => {
+                    if (chart) chart.destroy();
+                    chart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Take-Home Pay', 'Income Tax', 'National Insurance', 'Student Loan Repayment'],
+                            datasets: [{
+                                label: 'Tax Breakdown',
+                                data: data,
+                                backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+                    });
                 };
 
-                const taxChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: taxData,
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top'
-                            }
-                        }
-                    }
-                });
+                renderChart([
+                    {{ result['Take-Home Pay'] }},
+                    {{ result['Income Tax'] }},
+                    {{ result['National Insurance'] }},
+                    {{ result['Student Loan Repayment'] }}
+                ]);
+
+                // Bonus Slider Functionality
+                function updateResults(bonus) {
+                    document.getElementById('bonusValue').textContent = bonus;
+                    const grossSalary = {{ result['Gross Salary'] }};
+                    const newGross = grossSalary + parseFloat(bonus);
+
+                    fetch(`/calculate-tax?gross_salary=${newGross}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('grossSalary').textContent = data['Gross Salary'];
+                            document.getElementById('takeHomePay').textContent = data['Take-Home Pay'];
+                            document.getElementById('incomeTax').textContent = data['Income Tax'];
+                            document.getElementById('nationalInsurance').textContent = data['National Insurance'];
+                            renderChart([
+                                data['Take-Home Pay'],
+                                data['Income Tax'],
+                                data['National Insurance'],
+                                data['Student Loan Repayment']
+                            ]);
+                        });
+                }
+
+                // PDF Download Functionality
+                function downloadPDF() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    doc.text("Tax Breakdown Report", 10, 10);
+                    doc.text(`Gross Salary: £${document.getElementById('grossSalary').textContent}`, 10, 20);
+                    doc.text(`Take-Home Pay: £${document.getElementById('takeHomePay').textContent}`, 10, 30);
+                    doc.text(`Income Tax: £${document.getElementById('incomeTax').textContent}`, 10, 40);
+                    doc.text(`National Insurance: £${document.getElementById('nationalInsurance').textContent}`, 10, 50);
+                    doc.save("tax_results.pdf");
+                }
             </script>
         {% endif %}
-
-        <a href="/">Back to Home</a>
     </div>
 </body>
 </html>

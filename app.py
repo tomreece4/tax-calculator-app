@@ -99,5 +99,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/calculate-tax')
+def calculate_tax():
+    gross_salary = float(request.args.get('gross_salary', 0))
+    result = british_tax_rate(gross_salary)
+    return result
+
+
 if __name__ == '__main__':
     app.run(debug=True)
