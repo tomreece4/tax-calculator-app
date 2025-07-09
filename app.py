@@ -1,110 +1,91 @@
 from flask import Flask, render_template, request
+from datetime import date
 
 app = Flask(__name__)
 
+PERSONAL_ALLOWANCE = 12570
 
-def british_tax_rate(gross_salary, student_loan_plan=None):
-    """
-    Calculate take-home pay in the UK for the 2023/2024 tax year, with optional student loan repayment.
+UK_TAX_BANDS = [
+    (0, PERSONAL_ALLOWANCE, 0.0),
+    (PERSONAL_ALLOWANCE, 50270, 0.20),
+    (50270, 125140, 0.40),
+    (125140, float('inf'), 0.45),
+]
 
-    Args:
-        gross_salary (float): Annual gross salary in GBP.
-        student_loan_plan (str): Optional; Student loan repayment plan ('Plan 1', 'Plan 2', 'Plan 4', 'PGL').
+SCOTLAND_TAX_BANDS = [
+    (0, PERSONAL_ALLOWANCE, 0.0),
+    (PERSONAL_ALLOWANCE, 15397, 0.19),
+    (15397, 27491, 0.20),
+    (27491, 43662, 0.21),
+    (43662, 75000, 0.42),
+    (75000, 125140, 0.45),
+    (125140, float('inf'), 0.48),
+]
 
-    Returns:
-        dict: A dictionary with a breakdown of tax, NIC, student loan, and take-home pay.
-    """
-    # Define tax brackets and rates
-    tax_brackets = [
-        (0, 12570, 0.0),  # Personal Allowance
-        (12571, 50270, 0.20),  # Basic rate
-        (50271, 125140, 0.40),  # Higher rate
-        (125141, float('inf'), 0.45),  # Additional rate
-    ]
+NI_BANDS = [
+    (0, PERSONAL_ALLOWANCE, 0.0),
+    (PERSONAL_ALLOWANCE, 50270, 0.08),
+    (50270, float('inf'), 0.02),
+]
 
-    # Define National Insurance thresholds and rates
-    ni_brackets = [
-        (0, 12569, 0.0),  # Below the Lower Earnings Limit
-        (12570, 50270, 0.08),  # Primary threshold
-        (50271, float('inf'), 0.02),  # Upper earnings limit
-    ]
+STUDENT_LOAN_THRESHOLDS = {
+    "Plan 1": (26065, 0.09),
+    "Plan 2": (28470, 0.09),
+    "Plan 4": (32745, 0.09),
+    "Plan 5": (float('inf'), 0.09),
+    "PGL":    (21000, 0.06),
+}
 
-    # Student loan repayment thresholds and rates
-    student_loan_thresholds = {
-        "Plan 1": (22015, 0.09),
-        "Plan 2": (27295, 0.09),
-        "Plan 4": (27660, 0.09),
-        "PGL": (21000, 0.06),
-    }
+def apply_bands(amount, bands):
+    total = 0.0
+    for lower, upper, rate in bands:
+        if amount > lower:
+            taxable = min(amount, upper) - lower
+            total += taxable * rate
+    return total
 
-    # Adjust personal allowance for incomes over £100,000
-    personal_allowance = 12570
-    if gross_salary > 100000:
-        reduction = (gross_salary - 100000) / 2
-        personal_allowance = max(0, 12570 - reduction)
-        # Update tax brackets accordingly
-        tax_brackets[0] = (0, personal_allowance, 0.0)
-        tax_brackets[1] = (personal_allowance + 1, 50270, 0.20)
-
-    # Calculate income tax
-    tax = 0.0
-    for lower, upper, rate in tax_brackets:
-        if gross_salary > lower:
-            taxable_income = min(gross_salary, upper) - lower
-            tax += taxable_income * rate
-
-    # Calculate National Insurance
-    ni = 0.0
-    for lower, upper, rate in ni_brackets:
-        if gross_salary > lower:
-            ni_income = min(gross_salary, upper) - lower
-            ni += ni_income * rate
-
-    # Calculate student loan repayment
-    student_loan_repayment = 0.0
-    if student_loan_plan in student_loan_thresholds:
-        threshold, rate = student_loan_thresholds[student_loan_plan]
-        if gross_salary > threshold:
-            student_loan_repayment = (gross_salary - threshold) * rate
-
-    # Calculate take-home pay
-    take_home = gross_salary - tax - ni - student_loan_repayment
-
+def calculate_pay(gross_salary, region='UK', student_plan=None, pension_rate=0.0):
+    pension = gross_salary * pension_rate / 100
+    taxable_salary = max(0, gross_salary - pension)
+    bands = SCOTLAND_TAX_BANDS if region.lower() == 'scotland' else UK_TAX_BANDS
+    income_tax = apply_bands(taxable_salary, bands)
+    ni = apply_bands(taxable_salary, NI_BANDS)
+    sl_repayment = 0.0
+    if student_plan in STUDENT_LOAN_THRESHOLDS:
+        threshold, rate = STUDENT_LOAN_THRESHOLDS[student_plan]
+        if taxable_salary > threshold:
+            sl_repayment = (taxable_salary - threshold) * rate
+    net_pay = gross_salary - income_tax - ni - sl_repayment - pension
+    monthly = net_pay / 12
+    weekly = net_pay / 52
+    eff_tax_rate = income_tax / gross_salary if gross_salary else 0
+    eff_ni_rate = ni / gross_salary if gross_salary else 0
     return {
-        "Gross Salary": gross_salary,
-        "Income Tax": round(tax, 2),
-        "National Insurance": round(ni, 2),
-        "Student Loan Repayment": round(student_loan_repayment, 2),
-        "Take-Home Pay": round(take_home, 2),
+        'gross': round(gross_salary, 2),
+        'pension_contrib': round(pension, 2),
+        'income_tax': round(income_tax, 2),
+        'national_insurance': round(ni, 2),
+        'student_loan': round(sl_repayment, 2),
+        'net_annual': round(net_pay, 2),
+        'net_monthly': round(monthly, 2),
+        'net_weekly': round(weekly, 2),
+        'eff_tax_rate': round(eff_tax_rate * 100, 2),
+        'eff_ni_rate': round(eff_ni_rate * 100, 2),
+        'region': region,
+        'student_plan': student_plan,
+        'pension_rate': pension_rate,
     }
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Check which form was submitted
-        if 'gross_salary_1' in request.form and 'gross_salary_2' in request.form:
-            # Comparison form
-            salary1 = float(request.form.get('gross_salary_1', 0))
-            salary2 = float(request.form.get('gross_salary_2', 0))
-            result1 = british_tax_rate(salary1)
-            result2 = british_tax_rate(salary2)
-            return render_template('result.html', result1=result1, result2=result2, comparison=True)
-        elif 'gross_salary' in request.form:
-            salary = float(request.form.get('gross_salary', 0))
-            student_loan_plan = request.form.get('student_loan_plan', None)
-            result = british_tax_rate(salary, student_loan_plan)
-            return render_template('result.html', result=result, comparison=False)
-
+        gross = float(request.form.get('gross_salary', 0))
+        region = request.form.get('region', 'UK')
+        student_plan = request.form.get('student_loan_plan')
+        pension_rate = float(request.form.get('pension_rate', 0))
+        result = calculate_pay(gross, region, student_plan, pension_rate)
+        return render_template('result.html', result=result)
     return render_template('index.html')
-
-
-@app.route('/calculate-tax')
-def calculate_tax():
-    gross_salary = float(request.args.get('gross_salary', 0))
-    result = british_tax_rate(gross_salary)
-    return result
-
 
 if __name__ == '__main__':
     app.run(debug=True)

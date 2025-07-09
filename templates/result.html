@@ -13,21 +13,26 @@
         <h1>Tax Results</h1>
 
         {% if comparison %}
-            <!-- Comparison View -->
             <div class="salary-card">
                 <h2>Salary 1 Breakdown</h2>
-                <p><strong>Gross Salary:</strong> £{{ result1['Gross Salary'] }}</p>
-                <p><strong>Take-Home Pay:</strong> £{{ result1['Take-Home Pay'] }}</p>
-                <p><strong>Income Tax:</strong> £{{ result1['Income Tax'] }}</p>
-                <p><strong>National Insurance:</strong> £{{ result1['National Insurance'] }}</p>
+                <p><strong>Gross Salary:</strong> £{{ result1['gross'] }}</p>
+                <p><strong>Take-Home (Annual):</strong> £{{ result1['net_annual'] }}</p>
+                <p><strong>Income Tax:</strong> £{{ result1['income_tax'] }}</p>
+                <p><strong>National Insurance:</strong> £{{ result1['national_insurance'] }}</p>
+                {% if result1['student_loan'] > 0 %}
+                    <p><strong>Student Loan:</strong> £{{ result1['student_loan'] }}</p>
+                {% endif %}
             </div>
 
             <div class="salary-card">
                 <h2>Salary 2 Breakdown</h2>
-                <p><strong>Gross Salary:</strong> £{{ result2['Gross Salary'] }}</p>
-                <p><strong>Take-Home Pay:</strong> £{{ result2['Take-Home Pay'] }}</p>
-                <p><strong>Income Tax:</strong> £{{ result2['Income Tax'] }}</p>
-                <p><strong>National Insurance:</strong> £{{ result2['National Insurance'] }}</p>
+                <p><strong>Gross Salary:</strong> £{{ result2['gross'] }}</p>
+                <p><strong>Take-Home (Annual):</strong> £{{ result2['net_annual'] }}</p>
+                <p><strong>Income Tax:</strong> £{{ result2['income_tax'] }}</p>
+                <p><strong>National Insurance:</strong> £{{ result2['national_insurance'] }}</p>
+                {% if result2['student_loan'] > 0 %}
+                    <p><strong>Student Loan:</strong> £{{ result2['student_loan'] }}</p>
+                {% endif %}
             </div>
 
             <h2>Comparison Chart</h2>
@@ -35,31 +40,27 @@
             <script>
                 const ctxComparison = document.getElementById('comparisonChart').getContext('2d');
                 const comparisonData = {
-                    labels: ['Gross Salary', 'Take-Home Pay', 'Income Tax', 'National Insurance'],
+                    labels: ['Gross Salary', 'Take-Home', 'Income Tax', 'NI', 'Student Loan'],
                     datasets: [
                         {
-                            label: 'Salary 1 (£{{ result1["Gross Salary"] }})',
+                            label: 'Salary 1 (£{{ result1["gross"] }})',
                             data: [
-                                {{ result1['Gross Salary'] }},
-                                {{ result1['Take-Home Pay'] }},
-                                {{ result1['Income Tax'] }},
-                                {{ result1['National Insurance'] }}
-                            ],
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)', /* Blue */
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
+                                {{ result1['gross'] }},
+                                {{ result1['net_annual'] }},
+                                {{ result1['income_tax'] }},
+                                {{ result1['national_insurance'] }},
+                                {{ result1['student_loan'] }}
+                            ]
                         },
                         {
-                            label: 'Salary 2 (£{{ result2["Gross Salary"] }})',
+                            label: 'Salary 2 (£{{ result2["gross"] }})',
                             data: [
-                                {{ result2['Gross Salary'] }},
-                                {{ result2['Take-Home Pay'] }},
-                                {{ result2['Income Tax'] }},
-                                {{ result2['National Insurance'] }}
-                            ],
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)', /* Red */
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
+                                {{ result2['gross'] }},
+                                {{ result2['net_annual'] }},
+                                {{ result2['income_tax'] }},
+                                {{ result2['national_insurance'] }},
+                                {{ result2['student_loan'] }}
+                            ]
                         }
                     ]
                 };
@@ -74,7 +75,7 @@
                             tooltip: { enabled: true }
                         },
                         scales: {
-                            x: { title: { display: true, text: 'Categories' } },
+                            x: { title: { display: true, text: 'Category' } },
                             y: { title: { display: true, text: 'Amount (£)' } }
                         }
                     }
@@ -82,89 +83,77 @@
             </script>
         {% else %}
             <div class="salary-card">
-                <p><strong>Gross Salary:</strong> £<span id="grossSalary">{{ result['Gross Salary'] }}</span></p>
-                <p><strong>Take-Home Pay:</strong> £<span id="takeHomePay">{{ result['Take-Home Pay'] }}</span></p>
-                <p><strong>Income Tax:</strong> £<span id="incomeTax">{{ result['Income Tax'] }}</span></p>
-                <p><strong>National Insurance:</strong> £<span id="nationalInsurance">{{ result['National Insurance'] }}</span></p>
-                {% if result['Student Loan Repayment'] > 0 %}
-                    <p><strong>Student Loan Repayment:</strong> £<span id="studentLoan">{{ result['Student Loan Repayment'] }}</span></p>
+                <p><strong>Gross Salary:</strong> £<span id="grossSalary">{{ result['gross'] }}</span></p>
+                <p><strong>Take-Home (Annual):</strong> £<span id="takeHomePay">{{ result['net_annual'] }}</span></p>
+                <p><strong>Income Tax:</strong> £<span id="incomeTax">{{ result['income_tax'] }}</span></p>
+                <p><strong>National Insurance:</strong> £<span id="nationalInsurance">{{ result['national_insurance'] }}</span></p>
+                {% if result['student_loan'] > 0 %}
+                    <p><strong>Student Loan:</strong> £<span id="studentLoan">{{ result['student_loan'] }}</span></p>
                 {% endif %}
                 <a href="/">Calculate Again</a>
             </div>
 
-            <!-- Bonus Slider -->
             <h2>Adjust Your Bonus</h2>
             <label for="bonus">Bonus Amount (£):</label>
             <input type="range" id="bonus" min="0" max="20000" step="1000" value="0" oninput="updateResults(this.value)">
             <span id="bonusValue">0</span>
 
-            <!-- Chart -->
             <h2>Tax Breakdown Chart</h2>
-            <canvas id="taxChart" width="400" height="400"></canvas>
+            <canvas id="taxChart"></canvas>
 
-            <!-- Download Button -->
             <button onclick="downloadPDF()">Download PDF</button>
 
             <script>
-                // Chart
                 const ctx = document.getElementById('taxChart').getContext('2d');
                 let chart = null;
 
-                const renderChart = (data) => {
+                function renderChart(data) {
                     if (chart) chart.destroy();
                     chart = new Chart(ctx, {
                         type: 'pie',
                         data: {
-                            labels: ['Take-Home Pay', 'Income Tax', 'National Insurance', 'Student Loan Repayment'],
-                            datasets: [{
-                                label: 'Tax Breakdown',
-                                data: data,
-                                backgroundColor: ['#4caf50', '#f44336', '#2196f3', '#ff9800'],
-                                borderWidth: 1
-                            }]
+                            labels: ['Take-Home', 'Income Tax', 'NI', 'Student Loan'],
+                            datasets: [{ data }]
                         },
                         options: { responsive: true, plugins: { legend: { position: 'top' } } }
                     });
-                };
+                }
 
                 renderChart([
-                    {{ result['Take-Home Pay'] }},
-                    {{ result['Income Tax'] }},
-                    {{ result['National Insurance'] }},
-                    {{ result['Student Loan Repayment'] }}
+                    {{ result['net_annual'] }},
+                    {{ result['income_tax'] }},
+                    {{ result['national_insurance'] }},
+                    {{ result['student_loan'] }}
                 ]);
 
-                // Bonus Slider Functionality
                 function updateResults(bonus) {
                     document.getElementById('bonusValue').textContent = bonus;
-                    const grossSalary = {{ result['Gross Salary'] }};
-                    const newGross = grossSalary + parseFloat(bonus);
-
+                    const newGross = {{ result['gross'] }} + parseFloat(bonus);
                     fetch(`/calculate-tax?gross_salary=${newGross}`)
-                        .then(response => response.json())
+                        .then(res => res.json())
                         .then(data => {
-                            document.getElementById('grossSalary').textContent = data['Gross Salary'];
-                            document.getElementById('takeHomePay').textContent = data['Take-Home Pay'];
-                            document.getElementById('incomeTax').textContent = data['Income Tax'];
-                            document.getElementById('nationalInsurance').textContent = data['National Insurance'];
+                            document.getElementById('grossSalary').textContent = data.gross;
+                            document.getElementById('takeHomePay').textContent = data.net_annual;
+                            document.getElementById('incomeTax').textContent = data.income_tax;
+                            document.getElementById('nationalInsurance').textContent = data.national_insurance;
+                            document.getElementById('studentLoan').textContent = data.student_loan;
                             renderChart([
-                                data['Take-Home Pay'],
-                                data['Income Tax'],
-                                data['National Insurance'],
-                                data['Student Loan Repayment']
+                                data.net_annual,
+                                data.income_tax,
+                                data.national_insurance,
+                                data.student_loan
                             ]);
                         });
                 }
 
-                // PDF Download Functionality
                 function downloadPDF() {
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
                     doc.text("Tax Breakdown Report", 10, 10);
                     doc.text(`Gross Salary: £${document.getElementById('grossSalary').textContent}`, 10, 20);
-                    doc.text(`Take-Home Pay: £${document.getElementById('takeHomePay').textContent}`, 10, 30);
+                    doc.text(`Take-Home: £${document.getElementById('takeHomePay').textContent}`, 10, 30);
                     doc.text(`Income Tax: £${document.getElementById('incomeTax').textContent}`, 10, 40);
-                    doc.text(`National Insurance: £${document.getElementById('nationalInsurance').textContent}`, 10, 50);
+                    doc.text(`NI: £${document.getElementById('nationalInsurance').textContent}`, 10, 50);
                     doc.save("tax_results.pdf");
                 }
             </script>

@@ -5,54 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UK Tax Calculator</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script>
-        function toggleForm(type) {
-            const singleSalaryForm = document.getElementById('single-salary-form');
-            const comparisonForm = document.getElementById('comparison-form');
-            if (type === 'single') {
-                singleSalaryForm.style.display = 'block';
-                comparisonForm.style.display = 'none';
-            } else if (type === 'compare') {
-                singleSalaryForm.style.display = 'none';
-                comparisonForm.style.display = 'block';
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="container">
         <h1>UK Tax Calculator</h1>
+        <form method="post">
+            <div class="form-group">
+                <label for="gross_salary">Gross Annual Salary (£):</label>
+                <input type="number" id="gross_salary" name="gross_salary" step="0.01" min="0" required>
+            </div>
 
-        <div class="options">
-            <button onclick="toggleForm('single')">Calculate for One Salary</button>
-            <button onclick="toggleForm('compare')">Compare Two Salaries</button>
-        </div>
+            <div class="form-group">
+                <label for="region">Region:</label>
+                <select id="region" name="region">
+                    <option value="UK" selected>England, Wales &amp; NI</option>
+                    <option value="Scotland">Scotland</option>
+                </select>
+            </div>
 
-<form method="post">
-    <label for="gross_salary">Enter Your Gross Annual Salary (£):</label>
-    <input type="number" id="gross_salary" name="gross_salary" required>
+            <div class="form-group">
+                <label for="student_loan_plan">Student Loan Plan:</label>
+                <select id="student_loan_plan" name="student_loan_plan">
+                    <option value="" selected>No Student Loan</option>
+                    <option value="Plan 1">Plan 1</option>
+                    <option value="Plan 2">Plan 2</option>
+                    <option value="Plan 4">Plan 4</option>
+                    <option value="Plan 5">Plan 5</option>
+                    <option value="PGL">Postgraduate Loan</option>
+                </select>
+            </div>
 
-    <label for="student_loan_plan">Select Your Student Loan Plan:</label>
-    <select id="student_loan_plan" name="student_loan_plan">
-        <option value="" selected>No Student Loan</option>
-        <option value="Plan 1">Plan 1</option>
-        <option value="Plan 2">Plan 2</option>
-        <option value="Plan 4">Plan 4</option>
-        <option value="PGL">Postgraduate Loan</option>
-    </select>
+            <div class="form-group">
+                <label for="pension_rate">Pension Contribution (%):</label>
+                <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0">
+            </div>
 
-    <button type="submit">Calculate</button>
-</form>
-
-        <!-- Comparison Form -->
-        <form id="comparison-form" method="post" style="display: none;">
-            <label for="gross_salary_1">Enter Gross Salary 1 (GBP):</label>
-            <input type="number" id="gross_salary_1" name="gross_salary_1" step="0.01" required>
-
-            <label for="gross_salary_2">Enter Gross Salary 2 (GBP):</label>
-            <input type="number" id="gross_salary_2" name="gross_salary_2" step="0.01" required>
-
-            <button type="submit">Compare</button>
+            <button type="submit">Calculate Take-Home Pay</button>
         </form>
     </div>
 </body>
