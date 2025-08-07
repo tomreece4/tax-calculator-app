@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UK Tax Calculator</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK Tax Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>UK Tax Calculator</h1>
-        <form method="post">
-            <div class="form-group">
-                <label for="gross_salary">Gross Annual Salary (£):</label>
-                <input type="number" id="gross_salary" name="gross_salary" step="0.01" min="0" required>
-            </div>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <div class="max-w-xl mx-auto mt-12 p-6 bg-white rounded-xl shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">UK Tax Calculator</h1>
+    <form method="POST" class="space-y-4">
+      <div>
+        <label for="gross_salary" class="block font-medium">Gross Annual Salary (£)</label>
+        <input type="number" id="gross_salary" name="gross_salary" step="0.01" min="0" required
+               class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
 
-            <div class="form-group">
-                <label for="region">Region:</label>
-                <select id="region" name="region">
-                    <option value="UK" selected>England, Wales &amp; NI</option>
-                    <option value="Scotland">Scotland</option>
-                </select>
-            </div>
+      <div>
+        <label for="region" class="block font-medium">Region</label>
+        <select id="region" name="region"
+                class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="UK">England, Wales & NI</option>
+          <option value="Scotland">Scotland</option>
+        </select>
+      </div>
 
-            <div class="form-group">
-                <label for="student_loan_plan">Student Loan Plan:</label>
-                <select id="student_loan_plan" name="student_loan_plan">
-                    <option value="" selected>No Student Loan</option>
-                    <option value="Plan 1">Plan 1</option>
-                    <option value="Plan 2">Plan 2</option>
-                    <option value="Plan 4">Plan 4</option>
-                    <option value="Plan 5">Plan 5</option>
-                    <option value="PGL">Postgraduate Loan</option>
-                </select>
-            </div>
+      <div>
+        <label for="student_loan_plan" class="block font-medium">Student Loan Plan</label>
+        <select id="student_loan_plan" name="student_loan_plan"
+                class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="" selected>No Student Loan</option>
+          <option value="Plan 1">Plan 1</option>
+          <option value="Plan 2">Plan 2</option>
+          <option value="Plan 4">Plan 4</option>
+          <option value="Plan 5">Plan 5</option>
+          <option value="PGL">Postgraduate Loan</option>
+        </select>
+      </div>
 
-            <div class="form-group">
-                <label for="pension_rate">Pension Contribution (%):</label>
-                <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0">
-            </div>
+      <div>
+        <label for="pension_rate" class="block font-medium">Pension Contribution (%)</label>
+        <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0"
+               class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
 
-            <button type="submit">Calculate Take-Home Pay</button>
-        </form>
-    </div>
+      <button type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors">
+        Calculate Take-Home Pay
+      </button>
+    </form>
+  </div>
 </body>
 </html>
