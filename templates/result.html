@@ -15,6 +15,8 @@
     <div class="space-y-2 mb-6">
       <p><strong>Gross Salary:</strong> £<span id="grossSalary">{{ result['gross'] }}</span></p>
       <p><strong>Take-Home (Annual):</strong> £<span id="takeHomePay">{{ result['net_annual'] }}</span></p>
+      <p><strong>Monthly Take-Home:</strong> £<span id="monthlyPay">{{ result['net_monthly'] }}</span></p>
+      <p><strong>Weekly Take-Home:</strong> £<span id="weeklyPay">{{ result['net_weekly'] }}</span></p>
       <p><strong>Income Tax:</strong> £<span id="incomeTax">{{ result['income_tax'] }}</span></p>
       <p><strong>National Insurance:</strong> £<span id="nationalInsurance">{{ result['national_insurance'] }}</span></p>
       {% if result['student_loan'] > 0 %}
@@ -44,12 +46,12 @@
     </button>
   </div>
 
-  <script>
-    const ctx = document.getElementById('taxChart').getContext('2d');
-    let chart = null;
+<script>
+  const ctx = document.getElementById('taxChart').getContext('2d');
+  let chart = null;
 
-    function renderChart(data) {
-      if (chart) chart.destroy();
+  function renderChart(data) {
+    if (!chart) {
       chart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -61,50 +63,69 @@
         },
         options: {
           responsive: true,
+          animation: { animateRotate: true, animateScale: true },
           plugins: {
-            legend: { position: 'top' }
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw.toLocaleString('en-UK', {
+                    style: 'currency',
+                    currency: 'GBP'
+                  });
+                  return `${context.label}: ${value}`;
+                }
+              }
+            }
           }
         }
       });
+    } else {
+      chart.data.datasets[0].data = data;
+      chart.update();
     }
+  }
 
-    renderChart([
-      {{ result['net_annual'] }},
-      {{ result['income_tax'] }},
-      {{ result['national_insurance'] }},
-      {{ result['student_loan'] }}
-    ]);
+  function updateResults(bonus) {
+    document.getElementById('bonusValue').textContent = bonus;
 
-    function updateResults(bonus) {
-      document.getElementById('bonusValue').textContent = bonus;
-      const newGross = {{ result['gross'] }} + parseFloat(bonus);
-      fetch(`/calculate-tax?gross_salary=${newGross}`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('grossSalary').textContent = data.gross;
-          document.getElementById('takeHomePay').textContent = data.net_annual;
-          document.getElementById('incomeTax').textContent = data.income_tax;
-          document.getElementById('nationalInsurance').textContent = data.national_insurance;
+    const baseGross = {{ result['gross'] }};
+    const region = "{{ result['region'] }}";
+    const studentPlan = "{{ result['student_plan'] }}";
+    const pensionRate = {{ result['pension_rate'] }};
+
+    const newGross = baseGross + parseFloat(bonus);
+
+    const url = `/calculate-tax?gross_salary=${newGross}&region=${region}&student_loan_plan=${encodeURIComponent(studentPlan)}&pension_rate=${pensionRate}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('grossSalary').textContent = data.gross;
+        document.getElementById('takeHomePay').textContent = data.net_annual;
+        document.getElementById('incomeTax').textContent = data.income_tax;
+        document.getElementById('nationalInsurance').textContent = data.national_insurance;
+
+        if (document.getElementById('studentLoan')) {
           document.getElementById('studentLoan').textContent = data.student_loan;
-          renderChart([
-            data.net_annual,
-            data.income_tax,
-            data.national_insurance,
-            data.student_loan
-          ]);
-        });
-    }
+        }
 
-    function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("Tax Breakdown Report", 10, 10);
-      doc.text(`Gross Salary: £${document.getElementById('grossSalary').textContent}`, 10, 20);
-      doc.text(`Take-Home: £${document.getElementById('takeHomePay').textContent}`, 10, 30);
-      doc.text(`Income Tax: £${document.getElementById('incomeTax').textContent}`, 10, 40);
-      doc.text(`NI: £${document.getElementById('nationalInsurance').textContent}`, 10, 50);
-      doc.save("tax_results.pdf");
-    }
-  </script>
+        renderChart([
+          data.net_annual,
+          data.income_tax,
+          data.national_insurance,
+          data.student_loan
+        ]);
+      });
+  }
+
+  renderChart([
+    {{ result['net_annual'] }},
+    {{ result['income_tax'] }},
+    {{ result['national_insurance'] }},
+    {{ result['student_loan'] }}
+  ]);
+</script>
+
 </body>
 </html>

@@ -33,8 +33,9 @@ STUDENT_LOAN_THRESHOLDS = {
     "Plan 2": (28470, 0.09),
     "Plan 4": (32745, 0.09),
     "Plan 5": (float('inf'), 0.09),
-    "PGL":    (21000, 0.06),
+    "PGL": (21000, 0.06),
 }
+
 
 def apply_bands(amount, bands):
     total = 0.0
@@ -43,6 +44,7 @@ def apply_bands(amount, bands):
             taxable = min(amount, upper) - lower
             total += taxable * rate
     return total
+
 
 def calculate_pay(gross_salary, region='UK', student_plan=None, pension_rate=0.0):
     pension = gross_salary * pension_rate / 100
@@ -76,6 +78,7 @@ def calculate_pay(gross_salary, region='UK', student_plan=None, pension_rate=0.0
         'pension_rate': pension_rate,
     }
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -86,6 +89,21 @@ def index():
         result = calculate_pay(gross, region, student_plan, pension_rate)
         return render_template('result.html', result=result)
     return render_template('index.html')
+
+
+from flask import jsonify
+
+
+@app.route('/calculate-tax')
+def calculate_tax_api():
+    gross = float(request.args.get('gross_salary', 0))
+    region = request.args.get('region', 'UK')
+    student_plan = request.args.get('student_loan_plan')
+    pension_rate = float(request.args.get('pension_rate', 0))
+    result = calculate_pay(gross, region, student_plan, pension_rate)
+    return jsonify(result)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
