@@ -1,54 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UK Tax Calculator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 text-gray-900 font-sans">
-  <div class="max-w-xl mx-auto mt-12 p-6 bg-white rounded-xl shadow-lg">
-    <h1 class="text-3xl font-bold mb-6 text-center text-blue-800">UK Tax Calculator</h1>
-    <form method="POST" class="space-y-4">
-      <div>
-        <label for="gross_salary" class="block font-medium">Gross Annual Salary (£)</label>
-        <input type="number" id="gross_salary" name="gross_salary" step="0.01" min="0" required
-               class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
-      </div>
+{% extends "base.html" %}
 
-      <div>
-        <label for="region" class="block font-medium">Region</label>
-        <select id="region" name="region"
-                class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <option value="UK">England, Wales & NI</option>
-          <option value="Scotland">Scotland</option>
-        </select>
-      </div>
+{% block title %}UK Tax Calculator{% endblock %}
 
-      <div>
-        <label for="student_loan_plan" class="block font-medium">Student Loan Plan</label>
-        <select id="student_loan_plan" name="student_loan_plan"
-                class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <option value="" selected>No Student Loan</option>
-          <option value="Plan 1">Plan 1</option>
-          <option value="Plan 2">Plan 2</option>
-          <option value="Plan 4">Plan 4</option>
-          <option value="Plan 5">Plan 5</option>
-          <option value="PGL">Postgraduate Loan</option>
-        </select>
-      </div>
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-center text-blue-800">UK Tax Calculator</h1>
 
-      <div>
-        <label for="pension_rate" class="block font-medium">Pension Contribution (%)</label>
-        <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0"
-               class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
-      </div>
-
-      <button type="submit"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors">
-        Calculate Take-Home Pay
-      </button>
-    </form>
+<form id="taxForm" class="space-y-4">
+  <div>
+    <label for="gross_salary" class="block font-medium">Gross Annual Salary (£)</label>
+    <input type="number" id="gross_salary" name="gross_salary" step="0.01" min="0" required
+           class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400" />
   </div>
-</body>
-</html>
+
+  <div>
+    <label for="region" class="block font-medium">Region</label>
+    <select id="region" name="region" class="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400">
+      <option value="UK">England, Wales & NI</option>
+      <option value="Scotland">Scotland</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="student_loan_plan" class="block font-medium">Student Loan Plan</label>
+    <select id="student_loan_plan" name="student_loan_plan" class="w-full mt-1 p-2 border border-gray-300 rounded-md">
+      <option value="">No Student Loan</option>
+      <option value="Plan 1">Plan 1</option>
+      <option value="Plan 2">Plan 2</option>
+      <option value="Plan 4">Plan 4</option>
+      <option value="Plan 5">Plan 5</option>
+      <option value="PGL">Postgraduate Loan</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="pension_rate" class="block font-medium">Pension Contribution (%)</label>
+    <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0"
+           class="w-full mt-1 p-2 border border-gray-300 rounded-md" />
+  </div>
+</form>
+
+<hr class="my-6">
+
+<div id="results" class="hidden space-y-2">
+  <p><strong>Net Annual:</strong> <span id="net_annual"></span></p>
+  <p><strong>Monthly:</strong> <span id="net_monthly"></span></p>
+  <p><strong>Weekly:</strong> <span id="net_weekly"></span></p>
+  <p><strong>Income Tax:</strong> <span id="income_tax"></span></p>
+  <p><strong>National Insurance:</strong> <span id="ni"></span></p>
+  <p id="slRow"><strong>Student Loan:</strong> <span id="student_loan"></span></p>
+</div>
+
+<canvas id="taxChart" class="mt-6"></canvas>
+
+<script>
+const form = document.getElementById('taxForm');
+const resultsDiv = document.getElementById('results');
+const slRow = document.getElementById('slRow');
+let chart = null;
+
+function renderChart(data) {
+  if (!chart) {
+    chart = new Chart(document.getElementById('taxChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Take-Home', 'Income Tax', 'NI', 'Student Loan'],
+        datasets: [{
+          data: data,
+          backgroundColor: ['#10B981', '#EF4444', '#3B82F6', '#FBBF24']
+        }]
+      },
+      options: { responsive: true }
+    });
+  } else {
+    chart.data.datasets[0].data = data;
+    chart.update();
+  }
+}
+
+function formatGBP(value) {
+  return value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+}
+
+async function updateResults() {
+  const params = new URLSearchParams(new FormData(form));
+  const res = await fetch(`/calculate-tax?${params.toString()}`);
+  const data = await res.json();
+
+  document.getElementById('net_annual').textContent = formatGBP(data.net_annual);
+  document.getElementById('net_monthly').textContent = formatGBP(data.net_monthly);
+  document.getElementById('net_weekly').textContent = formatGBP(data.net_weekly);
+  document.getElementById('income_tax').textContent = formatGBP(data.income_tax);
+  document.getElementById('ni').textContent = formatGBP(data.national_insurance);
+
+  if (data.student_loan > 0) {
+    slRow.style.display = 'block';
+    document.getElementById('student_loan').textContent = formatGBP(data.student_loan);
+  } else {
+    slRow.style.display = 'none';
+  }
+
+  renderChart([data.net_annual, data.income_tax, data.national_insurance, data.student_loan]);
+  resultsDiv.classList.remove('hidden');
+}
+
+form.addEventListener('input', updateResults);
+</script>
+{% endblock %}
+
