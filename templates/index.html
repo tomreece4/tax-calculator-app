@@ -37,11 +37,18 @@
     <input type="number" id="pension_rate" name="pension_rate" step="0.1" min="0" max="100" value="0"
            class="w-full mt-1 p-2 border border-gray-300 rounded-md" />
   </div>
+
+  <div>
+    <label for="bonus" class="block mb-2 font-medium">Bonus (£)</label>
+    <input type="range" id="bonus" min="0" max="20000" step="1000" value="0" class="w-full">
+    <p class="mt-2 text-gray-700">Bonus: £<span id="bonusValue">0</span></p>
+  </div>
 </form>
 
 <hr class="my-6">
 
 <div id="results" class="hidden space-y-2">
+  <p><strong>Gross (inc. bonus):</strong> <span id="gross"></span></p>
   <p><strong>Net Annual:</strong> <span id="net_annual"></span></p>
   <p><strong>Monthly:</strong> <span id="net_monthly"></span></p>
   <p><strong>Weekly:</strong> <span id="net_weekly"></span></p>
@@ -54,9 +61,15 @@
 
 <script>
 const form = document.getElementById('taxForm');
+const bonusInput = document.getElementById('bonus');
+const bonusValue = document.getElementById('bonusValue');
 const resultsDiv = document.getElementById('results');
 const slRow = document.getElementById('slRow');
 let chart = null;
+
+function formatGBP(value) {
+  return value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
+}
 
 function renderChart(data) {
   if (!chart) {
@@ -77,15 +90,28 @@ function renderChart(data) {
   }
 }
 
-function formatGBP(value) {
-  return value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' });
-}
-
 async function updateResults() {
-  const params = new URLSearchParams(new FormData(form));
+  bonusValue.textContent = bonusInput.value;
+
+  const baseGross = parseFloat(document.getElementById('gross_salary').value || 0);
+  const totalGross = baseGross + parseFloat(bonusInput.value);
+
+  if (baseGross <= 0) {
+    resultsDiv.classList.add('hidden');
+    return;
+  }
+
+  const params = new URLSearchParams({
+    gross_salary: totalGross,
+    region: document.getElementById('region').value,
+    student_loan_plan: document.getElementById('student_loan_plan').value,
+    pension_rate: document.getElementById('pension_rate').value
+  });
+
   const res = await fetch(`/calculate-tax?${params.toString()}`);
   const data = await res.json();
 
+  document.getElementById('gross').textContent = formatGBP(data.gross);
   document.getElementById('net_annual').textContent = formatGBP(data.net_annual);
   document.getElementById('net_monthly').textContent = formatGBP(data.net_monthly);
   document.getElementById('net_weekly').textContent = formatGBP(data.net_weekly);
@@ -104,6 +130,7 @@ async function updateResults() {
 }
 
 form.addEventListener('input', updateResults);
+bonusInput.addEventListener('input', updateResults);
 </script>
 {% endblock %}
 
